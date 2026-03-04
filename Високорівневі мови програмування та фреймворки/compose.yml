@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: vadym
+      POSTGRES_PASSWORD: secret-db-password 
+      POSTGRES_DB: laba
+    ports:
+      - "5432:5432"
