@@ -1,6 +1,7 @@
 package com.example
 
 import com.auth0.jwt.JWT
+import com.example.models.Task
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -17,6 +18,9 @@ import java.sql.DriverManager
 fun Application.configureDatabases() {
     val dbConnection: Connection = connectToPostgres(embedded = true)
     val cityService = CityService(dbConnection)
+    transaction(dbConnection) {
+        SchemaUtils.create(Tasks)
+    }
     
     routing {
     
