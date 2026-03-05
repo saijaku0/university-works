@@ -14,10 +14,13 @@ import io.ktor.server.routing.*
 import java.sql.Connection
 import java.sql.DriverManager
 
-fun Application.configureRouting() {
+fun Application.configureSerialization() {
+    install(ContentNegotiation) {
+        json()
+    }
     routing {
-        get("/") {
-            call.respondText("Hello World!")
+        get("/json/kotlinx-serialization") {
+            call.respond(mapOf("hello" to "world"))
         }
     }
 }

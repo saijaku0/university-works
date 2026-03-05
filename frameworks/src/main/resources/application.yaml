@@ -6,7 +6,7 @@ ktor:
         port: 8080
 postgres:
   url: "jdbc:postgresql://localhost:5432/laba"
-  user: username
+  user: vadym
   password: "secret-db-password"
 jwt:
   domain: "https://jwt-provider-domain/"
