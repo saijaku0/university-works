@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Task Manager</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+      }
+      form {
+        margin-bottom: 20px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      input,
+      button {
+        padding: 10px;
+        margin: 5px 0;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .error {
+        color: red;
+      }
+      .success {
+        color: green;
+      }
+      .task {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 5px 0;
+      }
+      .task.done {
+        background: #e0ffe0;
+      }
+      #tasks {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Task Manager</h1>
+
+      <div id="taskSection">
+        <form id="taskForm">
+          <input type="text" id="taskTitle" placeholder="Task title" required />
+          <input type="text" id="taskDescription" placeholder="Description" />
+          <button type="submit">Add Task</button>
+        </form>
+        <div id="tasks"></div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:8080";
+
+      async function apiCall(url, options = {}) {
+        const response = await fetch(API_BASE + url, {
+          ...options,
+          headers: { "Content-Type": "application/json", ...options.headers },
+        });
+        return response.json();
+      }
+
+      async function loadTasks() {
+        const tasks = await apiCall("/tasks");
+        const container = document.getElementById("tasks");
+        container.innerHTML = "";
+        tasks.forEach((task) => {
+          const div = document.createElement("div");
+          div.className = "task" + (task.done ? " done" : "");
+          div.innerHTML = `
+                    <strong>${task.title}</strong> - ${task.description || ""}
+                    <button onclick="deleteTask(${task.id})">Delete</button>
+                `;
+          container.appendChild(div);
+        });
+      }
+
+      document
+        .getElementById("taskForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const title = document.getElementById("taskTitle").value;
+          const description = document.getElementById("taskDescription").value;
+          await apiCall("/tasks", {
+            method: "POST",
+            body: JSON.stringify({ title, description, done: false }),
+          });
+          document.getElementById("taskForm").reset();
+          loadTasks();
+        });
+
+      window.deleteTask = async (id) => {
+        if (!confirm("Удалить задачу?")) return;
+        try {
+          await apiCall(`/tasks/${id}`, { method: "DELETE" });
+          loadTasks();
+        } catch (err) {
+          alert("Ошибка при удалении: " + err.message);
+        }
+      };
+
+      loadTasks(); 
+    </script>
+  </body>
+</html>
